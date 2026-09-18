@@ -5,7 +5,7 @@ import type { Globe } from "cobe";
 import { useReducedMotion } from "framer-motion";
 import SectionStub from "./SectionStub";
 import { homeCoords, PIN_MERGE_KM } from "@/lib/data";
-import { useVisitorGeo, fetchWeather, haversine } from "@/lib/visitor";
+import { useVisitorGeo, fetchWeather, haversine, roundKm } from "@/lib/visitor";
 import type { Visitor } from "@/lib/visitor";
 
 const RED: [number, number, number] = [0.94, 0.33, 0.23];
@@ -377,7 +377,7 @@ export default function World() {
       <div className="pop rounded-md bg-surface p-5">
         <p className="font-mono text-2xl font-medium text-accent sm:text-3xl">
           {distance !== null
-            ? `≈ ${distance.toLocaleString("en-IN")} km apart`
+            ? `≈ ${roundKm(distance).toLocaleString("en-IN")} km apart`
             : "distance pending…"}
         </p>
         <p className="mt-2 max-w-md font-hand text-xl leading-snug text-muted">
@@ -508,18 +508,17 @@ export default function World() {
             <svg
               viewBox="0 0 32 32"
               fill="none"
-              className="absolute -left-1 -top-4 h-5 w-5 -scale-y-100 text-accent"
+              className="-ml-1 mr-1.5 inline-block h-5 w-5 text-accent sm:absolute sm:-left-6 sm:-top-5 sm:h-6 sm:w-6"
             >
               <path
-                d="M6 26 C 12 22, 18 16, 26 6 M 26 6 l -6 1 M 26 6 l -1.5 5.5"
+                d="M22 28 C 18 18, 16 12, 12 5 M 12 5 l 5 1 M 12 5 l 0.5 5.5"
                 stroke="currentColor"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 fill="none"
               />
             </svg>
-            it doesn&apos;t spin on its own — i have that power, i choose
-            restraint.
+            <span className="relative top-0.5">pssh&hellip; it doesn&apos;t spin on its own — i have that power, i choose restraint.</span>
           </div>
         </div>
 

@@ -8,8 +8,15 @@ export type Visitor =
 
 type Located = Extract<Visitor, { kind: "located" }>;
 
-const num = (v: unknown): number | null =>
-  typeof v === "number" && Number.isFinite(v) ? v : null;
+const num = (v: unknown): number | null => {
+  const n =
+    typeof v === "number"
+      ? v
+      : typeof v === "string"
+        ? parseFloat(v)
+        : NaN;
+  return Number.isFinite(n) ? n : null;
+};
 
 const loc = (
   city: string | undefined,
@@ -113,6 +120,14 @@ export function haversine(
     Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(aLat)) * Math.cos(toRad(bLat / 2)) * Math.sin(dLng / 2) ** 2;
   return Math.round(2 * R * Math.asin(Math.sqrt(s)));
+}
+
+// display-tier rounding: friends at 10 km steps, commutes at 50, intercities at 250, interplanetary at 500
+export function roundKm(km: number): number {
+  if (km < 100) return Math.round(km / 10) * 10;
+  if (km < 1000) return Math.round(km / 50) * 50;
+  if (km < 5000) return Math.round(km / 250) * 250;
+  return Math.round(km / 500) * 500;
 }
 
 const WEATHER_CODES: [number, number, string][] = [
