@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import type { Globe } from "cobe";
 import { useReducedMotion } from "framer-motion";
 import SectionStub from "./SectionStub";
-import { homeCoords, PIN_MERGE_KM, NUDGE_FAR_KM } from "@/lib/data";
+import { homeCoords, PIN_MERGE_KM } from "@/lib/data";
 import { useVisitorGeo, fetchWeather, haversine } from "@/lib/visitor";
-import type { Visitor } from "@/lib/visitor";
 
 const RED: [number, number, number] = [0.94, 0.33, 0.23];
+const BLUE: [number, number, number] = [0.31, 0.62, 0.93];
+const ARC: [number, number, number] = [0.7, 0.94, 0.89]; // teal accent
 
 const ZOOMS = [1, 1.25, 1.5, 1.75, 2];
 
@@ -23,6 +24,51 @@ function wrapAngle(x: number): number {
   if (y > Math.PI) y -= 2 * Math.PI;
   if (y < -Math.PI) y += 2 * Math.PI;
   return y;
+}
+
+// Solve (phi, theta) that puts a lat/lng point front-center.
+// Uses the exact projection math from cobe's marker shader:
+//   screen-c = cosθ·x + sinθ·z, screen-s = sinφ·sinθ·x + cosθ·y − cosφ·sinθ·z
+// with x = cos(lat)cos(lng), y = sin(lat), z = −cos(lat)sin(lng).
+function anglesFor(lat: number, lng: number): Ang {
+  const rad = Math.PI / 180;
+  const v = {
+    x: Math.cos(rad * lat) * Math.cos(rad * lng),
+    y: Math.sin(rad * lat),
+    z: -Math.cos(rad * lat) * Math.sin(rad * lng),
+  };
+  const score = (phi: number, theta: number): number => {
+    const ct = Math.cos(theta);
+    const st = Math.sin(theta);
+    const cf = Math.cos(phi);
+    const sf = Math.sin(phi);
+    const c = ct * v.x + st * v.z;
+    const s = sf * st * v.x + ct * v.y - cf * st * v.z;
+    return c * c + s * s;
+  };
+
+  let best: Ang & { d: number } = { phi: 0, theta: 0.25, d: Infinity };
+  for (let p = -18; p < 18; p++) {
+    const phi = (p / 18) * (Math.PI / 2);
+    for (let t = -28; t <= 28; t++) {
+      const theta = (t / 28) * (Math.PI / 3);
+      const d = score(phi, theta);
+      if (d < best.d) best = { phi, theta, d };
+    }
+  }
+  let step = Math.PI / 36;
+  for (let i = 0; i < 4; i++) {
+    for (let p = -2; p <= 2; p++) {
+      for (let t = -2; t <= 2; t++) {
+        const phi = best.phi + p * step;
+        const theta = clamp(best.theta + t * step, -1.2, 1.2);
+        const d = score(phi, theta);
+        if (d < best.d) best = { phi, theta, d };
+      }
+    }
+    step /= 2;
+  }
+  return { phi: wrapAngle(best.phi), theta: clamp(best.theta, -1.2, 1.2) };
 }
 
 // Port of cobe's own marker projection (O()/U() in its dist source):
@@ -64,6 +110,8 @@ const HOME_MARKER = {
   color: RED,
 };
 
+const HOME_VIEW = anglesFor(homeCoords.lat, homeCoords.lng);
+
 function Dot({ color = "bg-accent" }: { color?: string }) {
   return (
     <span aria-hidden="true" className={`mt-1 h-2 w-2 shrink-0 rounded-full ${color}`} />
@@ -74,17 +122,13 @@ export default function World() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const globeRef = useRef<Globe | null>(null);
-  const angRef = useRef<Ang>({ phi: 0, theta: 0.25 });
+  const angRef = useRef<Ang>({ ...HOME_VIEW });
   const dragRef = useRef({ on: false, x: 0, y: 0 });
   const animRef = useRef<{ t0: number; from: Ang; to: Ang } | null>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const syncRef = useRef<() => void>(() => {});
   const zoomRef = useRef(0);
   const overlapRef = useRef(false);
-  const midRef = useRef(false);
-  const visitorRef = useRef<Visitor | null>(null);
-  const youDotRef = useRef<HTMLDivElement>(null);
-  const stitchRef = useRef<SVGLineElement>(null);
   const { visitor } = useVisitorGeo();
   const reduced = useReducedMotion();
 
@@ -99,8 +143,6 @@ export default function World() {
       : null;
   const overlap = distance !== null && distance < PIN_MERGE_KM;
 
-  const midNudge = distance !== null && distance >= PIN_MERGE_KM && distance < NUDGE_FAR_KM;
-
   const applyAngle = () => {
     globeRef.current?.update({
       phi: angRef.current.phi,
@@ -109,13 +151,13 @@ export default function World() {
     syncRef.current();
   };
 
-  const syncOverlay = () => {
+  const syncRing = () => {
     const wrapper = wrapperRef.current;
     const ring = ringRef.current;
-    if (!wrapper) return;
+    if (!wrapper || !ring) return;
     const scale = 0.95 * ZOOMS[zoomRef.current];
     const aspect = wrapper.offsetWidth / wrapper.offsetHeight || 1;
-    const homePos = screenPos(
+    const pos = screenPos(
       homeCoords.lat,
       homeCoords.lng,
       angRef.current.phi,
@@ -123,69 +165,16 @@ export default function World() {
       scale,
       aspect
     );
-
-    if (ring) {
-      ring.style.left = `${(homePos.x * 100).toFixed(2)}%`;
-      ring.style.top = `${(homePos.y * 100).toFixed(2)}%`;
-      ring.style.opacity = overlapRef.current ? "1" : "0";
-    }
-
-    const v = visitorRef.current;
-    const dot = youDotRef.current;
-    const line = stitchRef.current;
-    if (!dot || !line) return;
-
-    if (
-      !v ||
-      v.kind !== "located" ||
-      overlapRef.current ||
-      midRef.current === false
-    ) {
-      dot.style.opacity = "0";
-      line.style.opacity = "0";
-      if (v && v.kind === "located" && !overlapRef.current) {
-        // far mode: dot sits exactly where the canvas arc ends
-        const farPos = screenPos(v.lat, v.lng, angRef.current.phi, angRef.current.theta, scale, aspect);
-        dot.style.left = `${(farPos.x * 100).toFixed(2)}%`;
-        dot.style.top = `${(farPos.y * 100).toFixed(2)}%`;
-        dot.style.opacity = farPos.visible ? "1" : "0";
-      }
-      return;
-    }
-
-    const bluePos = screenPos(v.lat, v.lng, angRef.current.phi, angRef.current.theta, scale, aspect);
-    let dirX = bluePos.x - homePos.x;
-    let dirY = bluePos.y - homePos.y;
-    const len = Math.hypot(dirX, dirY);
-    if (len < 0.001) {
-      dirX = 1;
-      dirY = 0;
-    } else {
-      dirX /= len;
-      dirY /= len;
-    }
-    const taper = Math.max(0, Math.min(1, (2.2 - ZOOMS[zoomRef.current]) / 1.2));
-    const nudgeX = (18 / wrapper.offsetWidth) * 100 * taper;
-    const nudgeY = (18 / wrapper.offsetHeight) * 100 * taper;
-    const dotX = (bluePos.x * 100 + dirX * nudgeX).toFixed(2);
-    const dotY = (bluePos.y * 100 + dirY * nudgeY).toFixed(2);
-    dot.style.left = `${dotX}%`;
-    dot.style.top = `${dotY}%`;
-    dot.style.opacity = bluePos.visible ? "1" : "0";
-    line.setAttribute("x1", `${(homePos.x * 100).toFixed(2)}%`);
-    line.setAttribute("y1", `${(homePos.y * 100).toFixed(2)}%`);
-    line.setAttribute("x2", `${dotX}%`);
-    line.setAttribute("y2", `${dotY}%`);
-    line.style.opacity = "1";
+    ring.style.left = `${(pos.x * 100).toFixed(2)}%`;
+    ring.style.top = `${(pos.y * 100).toFixed(2)}%`;
+    ring.style.opacity = overlapRef.current ? "1" : "0";
   };
 
   // keep refs in sync with state for the imperative callbacks
   useEffect(() => {
-    syncRef.current = syncOverlay;
     zoomRef.current = zoomIdx;
     overlapRef.current = overlap;
-    midRef.current = midNudge;
-    visitorRef.current = visitor;
+    syncRef.current = syncRing;
   });
 
   useEffect(() => {
@@ -235,7 +224,8 @@ export default function World() {
           glowColor: [0.42, 0.31, 0.14],
           dark: 1,
           scale: 0.95,
-          markers: [HOME_MARKER],
+          arcColor: ARC,
+          arcHeight: 0.25,
         });
         observer = new ResizeObserver(() => {
           const cw = wrapperRef.current?.offsetWidth || 380;
@@ -262,14 +252,14 @@ export default function World() {
   useEffect(() => {
     const g = globeRef.current;
     if (!g || !ready || !visitor) return;
-    // canvas keeps only the red home marker; the blue "you" dot is DOM-rendered
     const markers = [HOME_MARKER];
     let arcs: { from: [number, number]; to: [number, number] }[] = [];
-    const far =
-      visitor.kind === "located" &&
-      haversine(homeCoords.lat, homeCoords.lng, visitor.lat, visitor.lng) >=
-        NUDGE_FAR_KM;
-    if (far) {
+    if (visitor.kind === "located" && !overlap) {
+      markers.push({
+        location: [visitor.lat, visitor.lng],
+        size: 0.055,
+        color: BLUE,
+      });
       arcs = [{ from: [visitor.lat, visitor.lng], to: [homeCoords.lat, homeCoords.lng] }];
     }
     g.update({ markers: markers, arcs: arcs });
@@ -283,9 +273,9 @@ export default function World() {
   }, [zoomIdx, ready]);
 
   const recenterHome = () => {
-    const target = { phi: 0, theta: 0.25 };
+    const target = HOME_VIEW;
     if (reduced || !globeRef.current) {
-      angRef.current = target;
+      angRef.current = { ...target };
       applyAngle();
       return;
     }
@@ -424,32 +414,15 @@ export default function World() {
             }}
           />
 
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-            <svg className="pointer-events-none absolute inset-0 h-full w-full overflow-visible">
-              <line
-                ref={stitchRef}
-                stroke="#60a5fa"
-                strokeWidth="1.5"
-                strokeDasharray="4 5"
-                strokeLinecap="round"
-                style={{ opacity: 0, transition: "opacity 200ms" }}
-              />
-            </svg>
-            <div
-              ref={youDotRef}
-              className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#60a5fa] shadow-[0_0_10px_3px_rgba(96,165,250,0.5)] transition-opacity duration-200"
-              style={{ opacity: 0 }}
-            />
-            <div
-              ref={ringRef}
-              className="absolute -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full border-2 border-dashed border-[#60a5fa] motion-reduce:animate-none"
-              style={{
-                opacity: 0,
-                width: "18px",
-                height: "18px",
-              }}
-            />
-          </div>
+          <div
+            ref={ringRef}
+            className="absolute -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full border-2 border-dashed border-[#60a5fa] motion-reduce:animate-none"
+            style={{
+              opacity: 0,
+              width: "18px",
+              height: "18px",
+            }}
+          />
 
           <div className="absolute bottom-3 right-3 flex flex-col gap-1.5">
             <button

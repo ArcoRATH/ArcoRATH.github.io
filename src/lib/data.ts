@@ -35,7 +35,6 @@ export type WithPhoto = {
 };
 
 export const PIN_MERGE_KM = 40;
-export const NUDGE_FAR_KM = 800;
 
 export type Project = {
   id: string;
