@@ -1,149 +1,118 @@
 export const site = {
-  name: "Adarsh Mishra",
-  handle: "ArcoRATH",
-  role: "Backend Systems & Agentic AI",
-  college: "Mathematics and Computing @ IIT (BHU), Varanasi",
+  name: "adarsh mishra",
+  alias: "arcorath",
+  role: "backend systems & agentic ai",
+  college: "b.tech + m.tech, mathematics & computing — iit (bhu) varanasi · 2024 · gpa 8.99",
   github: "https://github.com/ArcoRATH",
   linkedin: "https://www.linkedin.com/in/adarsh-mishra-53b760218/",
-  email: "akmishra@gmail.com",
+  email: "akmishra2488@gmail.com",
 };
 
-export const taglines = [
-  "backend systems enthusiast",
-  "mathematics & computing @ iit (bhu)",
-  "microservices & distributed systems",
-  "agentic ai workflows",
-  "high-performance ml data pipelines",
+export const aboutLines = [
+  "i build the systems behind systems — microservices, distributed data, and agentic ai workflows that actually persist their state.",
+  "iit (bhu) 2024, mathematics & computing. when a problem interests me, i document it like an engineering memo: my repos ship with architecture diagrams, api references, and troubleshooting guides.",
 ];
 
-export const navLinks = [
-  { id: "about", label: "about" },
-  { id: "skills", label: "skills" },
-  { id: "projects", label: "projects" },
-  { id: "contact", label: "contact" },
-];
-
-export const skillGroups = [
-  {
-    title: "languages",
-    icon: ">",
-    skills: ["Python", "C++", "Java", "TypeScript", "SQL"],
-  },
-  {
-    title: "backend & full-stack",
-    icon: "{}",
-    skills: [
-      "Django",
-      "Django REST Framework",
-      "REST APIs",
-      "Microservices",
-      "Distributed Systems",
-      "System Design",
-      "React",
-      "React Query",
-      "Tailwind CSS",
-    ],
-  },
-  {
-    title: "data & ai",
-    icon: "λ",
-    skills: [
-      "PostgreSQL",
-      "pgvector",
-      "LangGraph",
-      "Gemini API",
-      "PyTorch",
-      "TensorFlow",
-      "NumPy",
-      "Pandas",
-      "Vector & Graph DBs",
-    ],
-  },
-  {
-    title: "infra & tools",
-    icon: "#",
-    skills: [
-      "Docker",
-      "Docker Compose",
-      "Gunicorn",
-      "Git",
-      "GitHub",
-      "Linux",
-      "LaTeX",
-    ],
-  },
+export const facts = [
+  "codeforces 1790 · expert",
+  "codechef 1914 · 4★",
+  "leetcode 2121 · knight",
+  "kickstart #1201 global",
+  "jee advanced 1503",
 ];
 
 export type Project = {
   id: string;
-  index: string;
+  num: string;
   title: string;
-  tagline: string;
-  description: string;
-  highlights: string[];
-  tech: string[];
   repo: string;
-  accent: "neon" | "viol";
+  problem: string;
+  built: string;
+  impact: string;
+  tech: string[];
 };
 
 export const projects: Project[] = [
   {
     id: "socratic-tutor",
-    index: "01",
-    title: "Socratic Learning Agent",
-    tagline: "LangGraph · Gemini · pgvector · Telegram",
-    description:
-      "A stateful AI tutor that turns text PDFs — from short papers to 500-page books — into an interactive Socratic learning journey over Telegram. It teaches each section, quizzes understanding, and tracks how well every concept sticks before moving on.",
-    highlights: [
-      "Mastery-gated teach → challenge → evaluate loop orchestrated with LangGraph — advance/retry decisions driven by per-concept mastery scores",
-      "Book-scale ingestion: extraction + size-based chunking + batched embeddings with rate-limit backoff — a 500-page book in ~a minute",
-      "Front/back-matter filter (heuristics + LLM classification) keeps only teachable content",
-      "PostgreSQL + pgvector as the single source of truth; agent state round-tripped through JSON",
-    ],
-    tech: [
-      "Python",
-      "LangGraph",
-      "Gemini API",
-      "PostgreSQL",
-      "pgvector",
-      "Docker",
-      "Telegram Bot API",
-    ],
+    num: "01",
+    title: "socratic learning agent",
     repo: "https://github.com/ArcoRATH/socratic_tutor",
-    accent: "neon",
+    problem: "learning from dense pdfs is passive — people skim, nod, and quit.",
+    built: "a stateful langgraph agent that teaches, quizzes, and mastery-gates every concept in a socratic loop over telegram.",
+    impact: "500-page books ingested in ~a minute; postgres + pgvector as the single source of truth for all agent state.",
+    tech: ["python", "langgraph", "gemini api", "pgvector", "docker", "telegram"],
   },
   {
     id: "smart-vault",
-    index: "02",
-    title: "Smart Vault",
-    tagline: "React · Django · SHA-256 dedup · Docker",
-    description:
-      "A full-stack file management platform with content-addressed storage: every upload is SHA-256 hashed and identical content is stored exactly once — the dashboard reports exactly how much storage that saves.",
-    highlights: [
-      "SHA-256 content dedup with reference counting — duplicate uploads cost 0 bytes on disk",
-      "Reference-count-safe deletes so duplicate records never dangle",
-      "Full-text search + multi-facet filtering (type / size / date / duplicates) with server-side pagination",
-      "Analytics: logical vs. actual disk usage, savings %, per-type breakdown, upload trends",
-      "One-command Docker Compose startup for the entire stack",
-    ],
-    tech: [
-      "React",
-      "TypeScript",
-      "Django",
-      "DRF",
-      "React Query",
-      "Tailwind CSS",
-      "Docker",
-    ],
+    num: "02",
+    title: "smart vault",
     repo: "https://github.com/ArcoRATH/smart_vault",
-    accent: "viol",
+    problem: "files pile up — duplicates quietly eat storage and nobody notices.",
+    built: "a react + django platform with sha-256 content-addressed storage and reference-count-safe deletes.",
+    impact: "duplicate uploads cost zero bytes on disk; live savings analytics make the dedup visible.",
+    tech: ["react", "typescript", "django", "drf", "react query", "docker"],
   },
 ];
 
-export const aboutLines = [
-  { prompt: "whoami", out: "Adarsh Mishra — Mathematics & Computing @ IIT (BHU), Varanasi" },
-  { prompt: "cat focus.txt", out: "scalable backend architectures · context-aware agentic workflows" },
-  { prompt: "cat focus.txt --next", out: "high-performance ML pipelines · microservices · API integrations" },
-  { prompt: "interests --list", out: "[backend system design, graph/vector databases, python, c++]" },
-  { prompt: "status", out: "● always learning something new" },
+export const experience = [
+  {
+    org: "edgini",
+    role: "freelance backend developer",
+    period: "sep 2025 — feb 2026",
+    note: "mcp tooling for ai-driven learning",
+    bullets: [
+      "engineered 40+ deterministic mcp tools (fastmcp, pydantic) with a neo4j + supabase hybrid data layer — asyncio concurrency cut tool latency ~50%",
+      "shipped a test-first, production-ready mcp server: 100% pytest coverage, dual stdio/sse transports, docker lifecycle management",
+    ],
+  },
+  {
+    org: "moveworks",
+    role: "software engineer",
+    period: "jul 2024 — jul 2025",
+    note: "ml data platform",
+    bullets: [
+      "built the ml data pipeline and annotation platform (django, postgresql, celery) on docker + kubernetes with oidc auth and redis queues",
+      "built the go microservice that replaced cloudinary — $30k/yr saved; s3 storage, prometheus observability, k8s rollout",
+    ],
+  },
+  {
+    org: "jio platforms",
+    role: "software engineering intern",
+    period: "may — jul 2023",
+    note: "nlp on e-commerce queries",
+    bullets: [
+      "built a NER pipeline (spaCy, pandas, fastapi) scoring 90% f1 on unseen queries — tokenization, preprocessing, custom model training",
+      "shipped the model behind a lightweight fastapi service; dockerized and load-tested to <100ms latency with locust",
+    ],
+  },
+];
+
+export const stackGroups = [
+  { label: "languages", items: ["python", "c++", "java", "typescript", "sql"] },
+  {
+    label: "backend",
+    items: ["django", "drf", "rest apis", "microservices", "distributed systems", "system design"],
+  },
+  {
+    label: "data & ai",
+    items: ["postgres", "pgvector", "langgraph", "gemini api", "pytorch", "spacy"],
+  },
+  { label: "frontend", items: ["react", "react query", "tailwind css"] },
+  { label: "infra", items: ["docker", "kubernetes", "aws s3", "linux", "git"] },
+];
+
+export const marqueeItems = [
+  "langgraph agents",
+  "mcp tooling",
+  "vector search",
+  "sha-256 dedup",
+  "microservices",
+  "distributed systems",
+  "ml data pipelines",
+  "django + drf",
+  "postgres + pgvector",
+  "docker & k8s",
+  "go microservices",
+  "100% pytest coverage",
 ];

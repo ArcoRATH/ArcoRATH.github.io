@@ -1,22 +1,27 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import "./globals.css";
 
-const display = Space_Grotesk({
-  variable: "--font-display",
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
 });
 
-const mono = JetBrains_Mono({
-  variable: "--font-jbmono",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://arcorath.github.io"),
-  title: "Adarsh Mishra — Backend Engineer",
+  title: "adarsh mishra — backend systems & agentic ai",
   description:
-    "Backend systems & agentic AI workflows. Mathematics and Computing @ IIT (BHU), Varanasi. Microservices, distributed systems, ML data pipelines.",
+    "backend engineer building scalable architectures and agentic ai workflows. mathematics & computing @ iit (bhu), varanasi. microservices, distributed systems, ml data pipelines.",
   keywords: [
     "Adarsh Mishra",
     "ArcoRATH",
@@ -32,11 +37,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${display.variable} ${mono.variable} h-full antialiased`}
+      className={`${geist.variable} ${geistMono.variable} ${caveat.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans bg-ink text-snow">
-        {children}
-      </body>
+      <body className="min-h-full bg-bg font-sans text-fg">{children}</body>
     </html>
   );
 }

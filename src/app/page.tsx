@@ -1,24 +1,42 @@
-import Navbar from "@/components/Navbar";
+import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
-import Skills from "@/components/Skills";
-import Projects from "@/components/Projects";
+import Work from "@/components/Work";
+import Experience from "@/components/Experience";
+import Stack from "@/components/Stack";
+import Marquee from "@/components/Marquee";
 import Contact, { Footer } from "@/components/Contact";
-import TerminalEasterEgg from "@/components/TerminalEasterEgg";
+import { site } from "@/lib/data";
+
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Adarsh Mishra",
+  alternateName: "ArcoRATH",
+  jobTitle: "Backend Engineer",
+  email: `mailto:${site.email}`,
+  alumniOf: "IIT (BHU), Varanasi",
+  url: "https://arcorath.github.io",
+};
 
 export default function Home() {
   return (
     <>
-      <Navbar />
-      <main className="flex-1">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(person) }}
+      />
+      <Nav />
+      <main className="mx-auto max-w-5xl px-6">
         <Hero />
         <About />
-        <Skills />
-        <Projects />
+        <Work />
+        <Experience />
+        <Stack />
+        <Marquee />
         <Contact />
       </main>
       <Footer />
-      <TerminalEasterEgg />
     </>
   );
 }
