@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #050810;
+  --color-panel: #0a101d;
+  --color-panel2: #0e1626;
+  --color-line: #1b2942;
+  --color-neon: #36bcf7;
+  --color-ice: #22d3ee;
+  --color-viol: #a78bfa;
+  --color-fog: #8fa3bd;
+  --color-snow: #e2e8f0;
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-jbmono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-snow);
+}
+
+::selection {
+  background: rgba(54, 188, 247, 0.25);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #050810;
+}
+::-webkit-scrollbar-thumb {
+  background: #1b2942;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #27405f;
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(54, 188, 247, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(54, 188, 247, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 75%);
+}
+
+.text-glow {
+  text-shadow: 0 0 24px rgba(54, 188, 247, 0.45);
+}
+
+.terminal-card {
+  box-shadow:
+    0 0 0 1px var(--color-line),
+    0 24px 60px -24px rgba(54, 188, 247, 0.18),
+    0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.blink {
+  animation: blink 1.1s step-end infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.bounce-slow {
+  animation: bounceSoft 2s ease-in-out infinite;
+}
+@keyframes bounceSoft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
