@@ -69,7 +69,7 @@ export default function About() {
               <span className="text-ice">let&apos;s connect over</span> →
               backend system design · graph/vector databases · python/c++
             </p>
-            <p className="font-mono text-xs text-fog/70">
+            <p className="font-mono text-xs text-fog/90">
               find me on github as{" "}
               <a
                 href={site.github}

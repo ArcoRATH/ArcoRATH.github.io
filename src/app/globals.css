@@ -28,6 +28,18 @@ body {
   color: #ffffff;
 }
 
+button:not(:disabled),
+[role="button"]:not(:disabled),
+[aria-haspopup] {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-neon);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -60,6 +72,16 @@ body {
     0 0 0 1px var(--color-line),
     0 24px 60px -24px rgba(54, 188, 247, 0.18),
     0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .blink,
+  .bounce-slow {
+    animation: none;
+  }
 }
 
 .blink {
