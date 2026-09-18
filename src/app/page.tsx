@@ -49,7 +49,7 @@ export default function Home() {
         className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_45%_40%_at_85%_62%,rgba(216,162,74,0.06),transparent_70%)]"
       />
       <Nav />
-      <main className="mx-auto max-w-5xl px-6">
+      <main className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-10">
         <Hero />
         <About />
         <Work />

@@ -111,7 +111,7 @@ export default function Contact() {
 export function Footer() {
   return (
     <footer className="border-t-2 border-fg">
-      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-6 py-8 font-mono text-[11px] uppercase tracking-wider text-faint sm:flex-row">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-8 font-mono text-[11px] uppercase tracking-wider text-faint sm:flex-row sm:px-8 lg:px-10">
         <p>
           © {new Date().getFullYear()} {site.name} · shipped from faridabad ·
           uptime: mostly yes

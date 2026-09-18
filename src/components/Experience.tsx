@@ -16,16 +16,16 @@ export default function Experience() {
             key={job.org}
             className="pop rounded-lg bg-surface p-6 sm:p-7"
           >
-            <div className="grid gap-4 sm:grid-cols-[13rem_minmax(0,1fr)]">
+            <div className="grid gap-4 sm:grid-cols-[15rem_minmax(0,1fr)]">
               <div>
-                <p className="font-display text-lg font-bold uppercase tracking-tight">
+                <p className="font-display text-xl font-bold uppercase tracking-tight">
                   {job.org}
                 </p>
-                <p className="mt-0.5 text-sm text-muted">{job.role}</p>
-                <p className="mt-1 font-mono text-[11px] text-faint">
+                <p className="mt-0.5 text-base text-muted">{job.role}</p>
+                <p className="mt-1 font-mono text-xs text-faint">
                   {job.period}
                 </p>
-                <p className="mt-1 font-mono text-[11px] text-faint">
+                <p className="mt-1 font-mono text-xs text-faint">
                   {job.note}
                 </p>
               </div>
@@ -33,11 +33,11 @@ export default function Experience() {
                 {job.bullets.map((b) => (
                   <li
                     key={b}
-                    className="flex gap-3 text-sm leading-relaxed text-muted"
+                    className="flex gap-3 leading-relaxed text-muted"
                   >
                     <span
                       aria-hidden="true"
-                      className="mt-1.5 h-px w-4 shrink-0 bg-accent"
+                      className="mt-2 h-px w-4 shrink-0 bg-accent"
                     />
                     <span>{b}</span>
                   </li>

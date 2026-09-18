@@ -55,10 +55,10 @@ function TiltCard({ project }: { project: Project }) {
             {project.repo.replace("https://github.com/", "")} ↗
           </a>
         </div>
-        <h3 className="mt-3 font-display text-xl font-bold uppercase tracking-tight sm:text-2xl">
+        <h3 className="mt-3 font-display text-2xl font-bold uppercase tracking-tight sm:text-3xl">
           {project.title}
         </h3>
-        <dl className="mt-4 space-y-3 text-sm leading-relaxed">
+        <dl className="mt-4 space-y-3 leading-relaxed">
           {[
             { label: "the mess", value: project.problem },
             { label: "my fix", value: project.built },

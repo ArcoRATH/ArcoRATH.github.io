@@ -34,7 +34,7 @@ export default function About() {
           />
         </div>
       ) : (
-        <div className="mt-6 max-w-2xl">{copy}</div>
+        <div className="mt-6 max-w-3xl">{copy}</div>
       )}
     </section>
   );

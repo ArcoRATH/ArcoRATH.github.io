@@ -16,7 +16,7 @@ export default function Hero() {
       <div className="relative mb-10 inline-block max-w-full sm:mb-14">
         <h1
           aria-label={site.name}
-          className="mt-6 font-display text-4xl font-bold uppercase tracking-tighter sm:text-6xl"
+          className="mt-6 font-display text-5xl font-bold uppercase tracking-tighter sm:text-7xl"
         >
           {site.name.split("").map((ch, i) => (
             <span
@@ -29,8 +29,8 @@ export default function Hero() {
             </span>
           ))}
         </h1>
-        <div className="mt-3 flex -rotate-1 items-center justify-center gap-2 sm:absolute sm:-bottom-10 sm:right-1 sm:mt-0 sm:-rotate-3 sm:items-start sm:justify-end">
-          <span className="font-hand text-[26px] leading-none text-accent">
+        <div className="mt-4 flex -rotate-1 items-center justify-center gap-2 sm:absolute sm:-bottom-10 sm:right-1 sm:mt-0 sm:-rotate-3 sm:items-start sm:justify-end">
+          <span className="font-hand text-3xl leading-none text-accent">
             <Scribble>so&hellip; what brings you here?</Scribble>
           </span>
           <motion.svg
@@ -52,7 +52,7 @@ export default function Hero() {
           </motion.svg>
         </div>
       </div>
-      <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+      <p className="mt-6 max-w-2xl text-xl leading-relaxed text-muted">
         i build scalable backend architectures and agentic workflows — the kind
         that remember everything you told them. it&apos;s not creepy, it&apos;s
         state management.

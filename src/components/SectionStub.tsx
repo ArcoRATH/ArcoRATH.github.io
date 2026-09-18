@@ -28,7 +28,7 @@ export default function SectionStub({
         {label}
         {children}
       </span>
-      <h2 className="mt-4 font-display text-2xl font-bold uppercase tracking-tight sm:text-3xl">
+      <h2 className="mt-4 font-display text-3xl font-bold uppercase tracking-tight sm:text-4xl">
         {title}
       </h2>
     </div>
