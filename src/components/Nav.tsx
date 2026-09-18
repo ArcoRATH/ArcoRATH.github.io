@@ -30,7 +30,7 @@ export default function Nav() {
           : "border-transparent bg-transparent"
       }`}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 sm:px-8 lg:px-10">
+      <div className="mx-auto flex h-16 max-w-[min(1400px,100%)] items-center justify-between px-6 sm:px-8 lg:px-10">
         <a
           href="#top"
           className="font-mono text-xs uppercase tracking-widest text-muted hover:text-accent"
