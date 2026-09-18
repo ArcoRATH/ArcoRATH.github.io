@@ -2,8 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { site } from "@/lib/data";
+import ThemeToggle from "./ThemeToggle";
 
-const LINKS = ["about", "work", "experience", "stack"];
+const LINKS = [
+  { id: "about", label: "about" },
+  { id: "work", label: "work" },
+  { id: "experience", label: "experience" },
+  { id: "stack", label: "stack" },
+  { id: "world", label: "the in-between" },
+];
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -19,22 +26,22 @@ export default function Nav() {
     <nav
       className={`fixed inset-x-0 top-0 z-40 border-b transition-colors duration-200 ${
         scrolled
-          ? "border-border bg-bg/80 backdrop-blur-md"
+          ? "border-border bg-bg/85 backdrop-blur-md"
           : "border-transparent bg-transparent"
       }`}
     >
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
         <a
           href="#top"
-          className="font-mono text-xs uppercase tracking-widest text-muted hover:text-fg"
+          className="font-mono text-xs uppercase tracking-widest text-muted hover:text-accent"
         >
           {site.alias}
         </a>
-        <ul className="flex items-center gap-5 font-mono text-xs uppercase tracking-wider text-muted">
+        <ul className="flex items-center gap-4 font-mono text-xs uppercase tracking-wider text-muted">
           {LINKS.map((l) => (
-            <li key={l} className="hidden sm:block">
-              <a href={`#${l}`} className="hover:text-accent">
-                {l}
+            <li key={l.id} className="hidden sm:block">
+              <a href={`#${l.id}`} className="hover:text-accent">
+                {l.label}
               </a>
             </li>
           ))}
@@ -43,10 +50,13 @@ export default function Nav() {
               href={site.github}
               target="_blank"
               rel="noreferrer"
-              className="rounded-full border border-border bg-surface px-3 py-1.5 hover:border-accent/50 hover:text-accent"
+              className="pop rounded-md bg-surface px-3 py-1.5 no-underline"
             >
               github ↗
             </a>
+          </li>
+          <li>
+            <ThemeToggle />
           </li>
         </ul>
       </div>

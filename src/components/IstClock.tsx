@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { site } from "@/lib/data";
 
 const fmt = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Asia/Kolkata",
@@ -22,7 +23,7 @@ export default function IstClock() {
 
   return (
     <span suppressHydrationWarning className="font-mono text-[11px] uppercase tracking-wider text-faint">
-      india · {time} ist
+      {site.displayCity} · {time} ist
     </span>
   );
 }

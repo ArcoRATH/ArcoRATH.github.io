@@ -6,6 +6,14 @@ export const site = {
   github: "https://github.com/ArcoRATH",
   linkedin: "https://www.linkedin.com/in/adarsh-mishra-53b760218/",
   email: "akmishra2488@gmail.com",
+  city: "faridabad, haryana, india",
+  displayCity: "faridabad, haryana",
+};
+
+export const homeCoords = {
+  lat: 28.409,
+  lng: 77.311,
+  label: "faridabad",
 };
 
 export const aboutLines = [
@@ -21,6 +29,14 @@ export const facts = [
   "jee advanced 1503",
 ];
 
+export type WithPhoto = {
+  photo?: string;
+  photoCaption?: string;
+};
+
+export const PIN_MERGE_KM = 40;
+export const NUDGE_FAR_KM = 800;
+
 export type Project = {
   id: string;
   num: string;
@@ -30,7 +46,7 @@ export type Project = {
   built: string;
   impact: string;
   tech: string[];
-};
+} & WithPhoto;
 
 export const projects: Project[] = [
   {
@@ -55,7 +71,20 @@ export const projects: Project[] = [
   },
 ];
 
-export const experience = [
+export const aboutPhoto = {
+  src: "",
+  caption: "engineering memos, sometimes sunsets",
+};
+
+export type ExperienceEntry = {
+  org: string;
+  role: string;
+  period: string;
+  note: string;
+  bullets: string[];
+} & WithPhoto;
+
+export const experience: ExperienceEntry[] = [
   {
     org: "edgini",
     role: "freelance backend developer",
@@ -106,7 +135,7 @@ export const marqueeItems = [
   "langgraph agents",
   "mcp tooling",
   "vector search",
-  "sha-256 dedup",
+  "sha-256 dedup — buy one, get zero identical ones free",
   "microservices",
   "distributed systems",
   "ml data pipelines",
@@ -114,5 +143,5 @@ export const marqueeItems = [
   "postgres + pgvector",
   "docker & k8s",
   "go microservices",
-  "100% pytest coverage",
+  "100% pytest coverage — blame-proof",
 ];

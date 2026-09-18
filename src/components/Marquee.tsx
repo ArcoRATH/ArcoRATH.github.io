@@ -5,8 +5,8 @@ export default function Marquee() {
 
   return (
     <section
-      aria-label="Things i have shipped"
-      className="marquee overflow-hidden border-y border-border py-3"
+      aria-label="Things i have shipped, and other flexes"
+      className="marquee overflow-hidden border-y-2 border-fg py-3"
     >
       <div className="marquee-strip flex w-max items-center gap-8">
         {strip.map((item, i) => (

@@ -2,6 +2,8 @@
 
 import { useRef } from "react";
 import type { MouseEvent } from "react";
+import Photo from "./Photo";
+import SectionStub from "./SectionStub";
 import { projects } from "@/lib/data";
 import type { Project } from "@/lib/data";
 
@@ -30,41 +32,45 @@ function TiltCard({ project }: { project: Project }) {
       onMouseLeave={onLeave}
       className="will-change-transform transition-transform duration-200 ease-out"
     >
-      <article className="rounded-2xl border border-border bg-surface/50 p-6 transition-colors duration-200 hover:bg-surface/80 sm:p-7">
-        <div className="flex items-baseline justify-between">
-          <span className="font-mono text-xs text-faint">{project.num}</span>
+      <article className="pop rounded-lg bg-surface p-6 sm:p-7">
+        {project.photo && (
+          <Photo
+            src={project.photo}
+            caption={project.photoCaption}
+            alt={`${project.title} photo`}
+            className="mb-5 w-full"
+          />
+        )}
+        <div className="flex items-start justify-between gap-3">
+          <span className="mt-0.5 font-mono text-xs text-faint">
+            {project.num}
+          </span>
           <a
             href={project.repo}
             target="_blank"
             rel="noreferrer"
-            className="font-mono text-xs text-muted hover:text-accent"
+            className="font-mono text-[11px] text-accent hover:underline underline-offset-4"
             aria-label={`${project.title} repository`}
           >
             {project.repo.replace("https://github.com/", "")} ↗
           </a>
         </div>
-        <h3 className="mt-3 text-2xl font-semibold tracking-tight">
+        <h3 className="mt-3 font-display text-xl font-bold uppercase tracking-tight sm:text-2xl">
           {project.title}
         </h3>
         <dl className="mt-4 space-y-3 text-sm leading-relaxed">
-          <div>
-            <dt className="font-mono text-[10px] uppercase tracking-widest text-faint">
-              the problem
-            </dt>
-            <dd className="mt-0.5 text-muted">{project.problem}</dd>
-          </div>
-          <div>
-            <dt className="font-mono text-[10px] uppercase tracking-widest text-faint">
-              what i built
-            </dt>
-            <dd className="mt-0.5 text-muted">{project.built}</dd>
-          </div>
-          <div>
-            <dt className="font-mono text-[10px] uppercase tracking-widest text-faint">
-              so what
-            </dt>
-            <dd className="mt-0.5 text-muted">{project.impact}</dd>
-          </div>
+          {[
+            { label: "the mess", value: project.problem },
+            { label: "my fix", value: project.built },
+            { label: "who cares", value: project.impact },
+          ].map((field) => (
+            <div key={field.label}>
+              <dt className="font-mono text-[10px] uppercase tracking-widest text-faint">
+                {field.label}
+              </dt>
+              <dd className="mt-0.5 text-muted">{field.value}</dd>
+            </div>
+          ))}
         </dl>
         <p className="mt-5 font-mono text-[11px] text-faint">
           {project.tech.join(" · ")}
@@ -77,10 +83,13 @@ function TiltCard({ project }: { project: Project }) {
 export default function Work() {
   return (
     <section id="work" aria-label="Work" className="py-20">
-      <p className="font-mono text-[11px] uppercase tracking-widest text-faint">
-        work — proof of shipped things
-      </p>
-      <div className="mt-6 grid gap-5 md:grid-cols-2">
+      <SectionStub
+        num="02"
+        label="receipts, with annotations"
+        title="work"
+        dir="right"
+      />
+      <div className="mt-8 grid gap-6 md:grid-cols-2">
         {projects.map((p) => (
           <TiltCard key={p.id} project={p} />
         ))}
