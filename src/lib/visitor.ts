@@ -6,13 +6,71 @@ export type Visitor =
   | { kind: "located"; city: string; lat: number; lng: number }
   | { kind: "guess"; label: string };
 
-type GeoResponse = {
-  city?: string;
-  region?: string;
-  country_name?: string;
-  latitude: number;
-  longitude: number;
+type Located = Extract<Visitor, { kind: "located" }>;
+
+const num = (v: unknown): number | null =>
+  typeof v === "number" && Number.isFinite(v) ? v : null;
+
+const loc = (
+  city: string | undefined,
+  country: string | undefined,
+  lat: unknown,
+  lng: unknown
+): Located | null => {
+  const la = num(lat);
+  const lo = num(lng);
+  if (la === null || lo === null) return null;
+  return {
+    kind: "located",
+    city: [city, country].filter(Boolean).join(", ") || "somewhere",
+    lat: la,
+    lng: lo,
+  };
 };
+
+const PICKERS: { url: string; pick: (d: unknown) => Located | null }[] = [
+  {
+    url: "https://ipwho.is/",
+    pick: (d) => {
+      const o = d as { success?: boolean; city?: string; country?: string; latitude?: unknown; longitude?: unknown };
+      return o?.success
+        ? loc(o.city, o.country, o.latitude, o.longitude)
+        : null;
+    },
+  },
+  {
+    url: "https://get.geojs.io/v1/ip/geo.json",
+    pick: (d) => {
+      const o = d as { city?: string; country?: string; latitude?: unknown; longitude?: unknown };
+      return loc(o.city, o.country, o.latitude, o.longitude);
+    },
+  },
+  {
+    url: "https://ipapi.co/json/",
+    pick: (d) => {
+      const o = d as { error?: boolean; city?: string; country_name?: string; latitude?: unknown; longitude?: unknown };
+      return o?.error ? null : loc(o.city, o.country_name, o.latitude, o.longitude);
+    },
+  },
+];
+
+async function locate(): Promise<Located | null> {
+  for (const { url, pick } of PICKERS) {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 5000);
+    try {
+      const res = await fetch(url, { signal: ctrl.signal });
+      const data: unknown = await res.json();
+      const parsed = pick(data);
+      if (parsed) return parsed;
+    } catch {
+      /* try next provider */
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+  return null;
+}
 
 function offsetLabel(): string {
   const offset = -new Date().getTimezoneOffset();
@@ -28,33 +86,13 @@ export function useVisitorGeo(): { visitor: Visitor | null } {
 
   useEffect(() => {
     let alive = true;
-    const ctrl = new AbortController();
-    const timeout = setTimeout(() => ctrl.abort(), 4000);
     (async () => {
-      try {
-        const res = await fetch("https://ipapi.co/json/", {
-          signal: ctrl.signal,
-        });
-        const data: GeoResponse = await res.json();
-        if (!alive) return;
-        setVisitor({
-          kind: "located",
-          city: [data.city, data.country_name].filter(Boolean).join(", ") || "somewhere",
-          lat: data.latitude,
-          lng: data.longitude,
-        });
-      } catch {
-        if (alive) {
-          setVisitor({ kind: "guess", label: `somewhere in ${offsetLabel()}` });
-        }
-      } finally {
-        clearTimeout(timeout);
-      }
+      const located = await locate();
+      if (!alive) return;
+      setVisitor(located ?? { kind: "guess", label: `somewhere in ${offsetLabel()}` });
     })();
     return () => {
       alive = false;
-      ctrl.abort();
-      clearTimeout(timeout);
     };
   }, []);
 

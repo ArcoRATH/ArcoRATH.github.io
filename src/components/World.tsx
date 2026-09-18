@@ -6,6 +6,7 @@ import { useReducedMotion } from "framer-motion";
 import SectionStub from "./SectionStub";
 import { homeCoords, PIN_MERGE_KM } from "@/lib/data";
 import { useVisitorGeo, fetchWeather, haversine } from "@/lib/visitor";
+import type { Visitor } from "@/lib/visitor";
 
 const RED: [number, number, number] = [0.94, 0.33, 0.23];
 const BLUE: [number, number, number] = [0.31, 0.62, 0.93];
@@ -126,9 +127,12 @@ export default function World() {
   const dragRef = useRef({ on: false, x: 0, y: 0 });
   const animRef = useRef<{ t0: number; from: Ang; to: Ang } | null>(null);
   const ringRef = useRef<HTMLDivElement>(null);
+  const meLabelRef = useRef<HTMLDivElement>(null);
+  const youLabelRef = useRef<HTMLDivElement>(null);
   const syncRef = useRef<() => void>(() => {});
   const zoomRef = useRef(0);
   const overlapRef = useRef(false);
+  const visitorRef = useRef<Visitor | null>(null);
   const { visitor } = useVisitorGeo();
   const reduced = useReducedMotion();
 
@@ -157,7 +161,7 @@ export default function World() {
     if (!wrapper || !ring) return;
     const scale = 0.95 * ZOOMS[zoomRef.current];
     const aspect = wrapper.offsetWidth / wrapper.offsetHeight || 1;
-    const pos = screenPos(
+    const homePos = screenPos(
       homeCoords.lat,
       homeCoords.lng,
       angRef.current.phi,
@@ -165,15 +169,43 @@ export default function World() {
       scale,
       aspect
     );
-    ring.style.left = `${(pos.x * 100).toFixed(2)}%`;
-    ring.style.top = `${(pos.y * 100).toFixed(2)}%`;
-    ring.style.opacity = overlapRef.current ? "1" : "0";
+
+    if (ring) {
+      ring.style.left = `${(homePos.x * 100).toFixed(2)}%`;
+      ring.style.top = `${(homePos.y * 100).toFixed(2)}%`;
+      ring.style.opacity = overlapRef.current ? "1" : "0";
+    }
+
+    const me = meLabelRef.current;
+    if (me) {
+      me.style.left = `${(homePos.x * 100).toFixed(2)}%`;
+      me.style.top = `calc(${(homePos.y * 100).toFixed(2)}% + 12px)`;
+      me.style.opacity = homePos.visible ? "1" : "0";
+    }
+
+    const you = youLabelRef.current;
+    if (you) {
+      const v = visitorRef.current;
+      const show =
+        overlapRef.current === false &&
+        v !== null &&
+        v.kind === "located";
+      if (show && v.kind === "located") {
+        const pos = screenPos(v.lat, v.lng, angRef.current.phi, angRef.current.theta, scale, aspect);
+        you.style.left = `${(pos.x * 100).toFixed(2)}%`;
+        you.style.top = `calc(${(pos.y * 100).toFixed(2)}% + 12px)`;
+        you.style.opacity = pos.visible ? "1" : "0";
+      } else {
+        you.style.opacity = "0";
+      }
+    }
   };
 
   // keep refs in sync with state for the imperative callbacks
   useEffect(() => {
     zoomRef.current = zoomIdx;
     overlapRef.current = overlap;
+    visitorRef.current = visitor;
     syncRef.current = syncRing;
   });
 
@@ -304,53 +336,51 @@ export default function World() {
 
   const readoutCards = (
     <div
-      className="grid gap-4 lg:grid-cols-2"
+      className="grid gap-4"
       aria-label={`I am in ${homeCoords.label}, haryana, india. ${
         visitor?.kind === "located"
           ? `you are around ${distance} kilometres away in ${visitor.city}.`
           : "your approximate location shows on the globe."
       }`}
     >
-      <div className="pop rounded-md bg-surface p-4">
-        <p className="flex items-start gap-2 pt-1 text-sm text-fg">
-          <Dot color="bg-[#ef4444]" />
-          <span>me — faridabad, haryana</span>
-        </p>
-        <p className="mt-2 font-mono text-[11px] text-faint">
-          {homeTemp ? `${homeTemp.temp}° · ${homeTemp.note} · utc+05:30` : "…"}
-        </p>
-      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="pop rounded-md bg-surface p-4">
+          <p className="flex items-start gap-2 text-sm text-fg">
+            <Dot color="bg-[#ef4444]" />
+            <span>me — faridabad, haryana</span>
+          </p>
+          <p className="mt-2 font-mono text-[11px] text-faint">
+            {homeTemp ? `${homeTemp.temp}° · ${homeTemp.note} · utc+05:30` : "…"}
+          </p>
+        </div>
 
-      <div className="pop rounded-md bg-surface p-4">
-        <p className="flex items-start gap-2 pt-1 text-sm text-fg">
-          <Dot color="bg-[#60a5fa]" />
-          <span>
-            you — {visitorLine}
-            {overlap ? " · basically my neighbour" : ""}
-          </span>
-        </p>
-        <p className="mt-2 font-mono text-[11px] text-faint">
-          {visitor?.kind === "located" && visitorTemp
-            ? `${visitorTemp.temp}° · ${visitorTemp.note}`
-            : visitor?.kind === "located"
-              ? "weather not answering right now"
-              : visitor?.kind === "guess"
-                ? "ip lookup blocked — no weather from a timezone alone"
-                : "…"}
-        </p>
-      </div>
-
-      <div className="pop rounded-md bg-surface p-4">
-        <p className="font-mono text-sm">
-          {distance !== null ? (
-            <span className="text-accent">
-              ≈ {distance.toLocaleString("en-IN")} km apart
+        <div className="pop rounded-md bg-surface p-4">
+          <p className="flex items-start gap-2 text-sm text-fg">
+            <Dot color="bg-[#60a5fa]" />
+            <span>
+              you — {visitorLine}
+              {overlap ? " · basically my neighbour" : ""}
             </span>
-          ) : (
-            <span className="text-faint">distance pending…</span>
-          )}
+          </p>
+          <p className="mt-2 font-mono text-[11px] text-faint">
+            {visitor?.kind === "located" && visitorTemp
+              ? `${visitorTemp.temp}° · ${visitorTemp.note}`
+              : visitor?.kind === "located"
+                ? "weather not answering right now"
+                : visitor?.kind === "guess"
+                  ? "ip lookup blocked — no weather from a timezone alone"
+                  : "…"}
+          </p>
+        </div>
+      </div>
+
+      <div className="pop rounded-md bg-surface p-5">
+        <p className="font-mono text-2xl font-medium text-accent sm:text-3xl">
+          {distance !== null
+            ? `≈ ${distance.toLocaleString("en-IN")} km apart`
+            : "distance pending…"}
         </p>
-        <p className="mt-1.5 font-hand text-lg leading-snug text-muted">
+        <p className="mt-2 max-w-md font-hand text-xl leading-snug text-muted">
           {distance !== null ? distance < PIN_MERGE_KM
             ? "same pin code, probably. hi neighbour."
             : distance < 500
@@ -359,12 +389,6 @@ export default function World() {
                 ? "close enough for a call, far enough for an alibi."
                 : "different timezones, same inbox. physics is weak."
             : "the dot finder is working on it."}
-        </p>
-      </div>
-
-      <div className="pop rounded-md bg-surface p-4">
-        <p className="font-hand text-lg leading-snug text-fg/90">
-          it doesn&apos;t spin on its own — i have that power, i choose restraint.
         </p>
       </div>
     </div>
@@ -379,10 +403,11 @@ export default function World() {
         dir="left"
       />
 
-      <div className="mt-8 grid items-center gap-8 md:grid-cols-[auto_minmax(0,1fr)]">
-        <div
-          ref={wrapperRef}
-          className="relative mx-auto aspect-square w-[min(80vw,380px)]"
+      <div className="mt-8 grid items-start gap-8 md:grid-cols-[auto_minmax(0,1fr)]">
+        <div className="relative mx-auto w-[min(80vw,380px)]">
+          <div
+            ref={wrapperRef}
+            className="relative aspect-square"
         >
           <canvas
             ref={canvasRef}
@@ -424,6 +449,23 @@ export default function World() {
             }}
           />
 
+          <div
+            ref={meLabelRef}
+            aria-hidden="true"
+            className="pointer-events-none absolute -translate-x-1/2 rounded-sm bg-bg/85 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-[#f87171] backdrop-blur-sm"
+            style={{ opacity: 0, transition: "opacity 200ms" }}
+          >
+            me
+          </div>
+          <div
+            ref={youLabelRef}
+            aria-hidden="true"
+            className="pointer-events-none absolute -translate-x-1/2 rounded-sm bg-bg/85 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-[#60a5fa]"
+            style={{ opacity: 0, transition: "opacity 200ms" }}
+          >
+            you
+          </div>
+
           <div className="absolute bottom-3 right-3 flex flex-col gap-1.5">
             <button
               type="button"
@@ -456,6 +498,28 @@ export default function World() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 12a9 9 0 1 0 3-6.7L3 8m0-4v4h4" />
               </svg>
             </button>
+          </div>
+          </div>
+
+          <div
+            aria-hidden="true"
+            className="relative mt-2 -rotate-2 self-start font-hand text-lg leading-snug text-fg/80 sm:absolute sm:-bottom-[3.25rem] sm:left-0 sm:w-max"
+          >
+            <svg
+              viewBox="0 0 32 32"
+              fill="none"
+              className="absolute -left-1 -top-4 h-5 w-5 -scale-y-100 text-accent"
+            >
+              <path
+                d="M6 26 C 12 22, 18 16, 26 6 M 26 6 l -6 1 M 26 6 l -1.5 5.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </svg>
+            it doesn&apos;t spin on its own — i have that power, i choose
+            restraint.
           </div>
         </div>
 
