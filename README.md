@@ -1,6 +1,6 @@
 # arcorath.github.io
 
-Personal portfolio of **Adarsh Mishra** ([@ArcoRATH](https://github.com/ArcoRATH)) — backend systems & agentic AI.
+Personal portfolio of **Adarsh Mishra** ([@ArcoRATH](https://github.com/ArcoRATH))
 
 **Live:** https://arcorath.github.io
 
